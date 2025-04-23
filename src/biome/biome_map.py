@@ -9,6 +9,8 @@ class BiomeMap:
         self.cell_size = 20
         self.grid_width = 40
         self.grid_height = 30
+        self.screen_width = 800
+        self.screen_height = 600
         self.offset_x = 0
         self.offset_y = 0
         self.dragging = False
@@ -27,6 +29,20 @@ class BiomeMap:
         # Create a 2D grid to store biome information
         self.grid = [[None for _ in range(self.grid_width)] for _ in range(self.grid_height)]
         self._generate_biome_grid()
+        self._center_map()
+
+    def update_screen_size(self, width: int, height: int):
+        """Update screen dimensions and recenter the map"""
+        self.screen_width = width
+        self.screen_height = height
+        self._center_map()
+
+    def _center_map(self):
+        """Center the map in the current window"""
+        total_width = self.grid_width * self.cell_size
+        total_height = self.grid_height * self.cell_size
+        self.offset_x = (self.screen_width - total_width) // 2
+        self.offset_y = (self.screen_height - total_height) // 2
 
     def _generate_biome_grid(self):
         # Generate properties for each grid cell using noise maps
@@ -125,6 +141,20 @@ class BiomeMap:
                 # Update hovered tile
                 self.hovered_tile = self._get_tile_at_pos(event.pos)
         elif event.type == pygame.MOUSEWHEEL:
-            # Zoom in/out with mouse wheel
+            # Get current mouse position
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            
+            # Calculate grid position under mouse
+            grid_x = (mouse_x - self.offset_x) / self.cell_size
+            grid_y = (mouse_y - self.offset_y) / self.cell_size
+            
+            # Store old cell size for calculations
+            old_cell_size = self.cell_size
+            
+            # Update cell size
             zoom_factor = 1.1 if event.y > 0 else 0.9
-            self.cell_size = max(10, min(50, self.cell_size * zoom_factor)) 
+            self.cell_size = max(10, min(50, self.cell_size * zoom_factor))
+            
+            # Adjust offset to zoom towards mouse position
+            self.offset_x = mouse_x - grid_x * self.cell_size
+            self.offset_y = mouse_y - grid_y * self.cell_size 
