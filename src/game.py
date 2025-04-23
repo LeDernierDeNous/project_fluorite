@@ -1,62 +1,85 @@
 import pygame
-from config import Config
-from map.map_manager import MapManager
+import sys
+from ui.title_screen import TitleScreen
 from biome.biome_loader import BiomeLoader
+from biome.biome_map import BiomeMap
+from config import Config
 
 class Game:
     def __init__(self):
-        self.config = Config()
-        self.screen = None
-        self.clock = None
-        self.map_manager = None
-        self.running = False
-
-    def initialize(self):
         pygame.init()
-        self.screen = pygame.display.set_mode(self.config.get_window_dimensions())
-        pygame.display.set_caption("Interactive 2D Biome Map")
+        self.config = Config()
+        self.screen_width, self.screen_height = self.config.get_window_dimensions()
+        self.screen = pygame.display.set_mode((self.screen_width, self.screen_height), pygame.RESIZABLE)
+        pygame.display.set_caption("Biome Explorer")
         self.clock = pygame.time.Clock()
+        self.running = True
 
-        # Load biomes and create map
-        biome_loader = BiomeLoader()
-        biomes = biome_loader.load()
-        if not biomes:
-            print("No biomes loaded. Exiting...")
-            pygame.quit()
-            exit(1)
+        # Game states
+        self.current_state = "title"  # title, game
+        self.title_screen = TitleScreen(self.screen_width, self.screen_height)
+        self.title_screen.set_start_game_callback(self.start_game)
 
-        map_width, map_height = self.config.get_map_dimensions()
-        self.map_manager = MapManager(map_width, map_height, self.config.get_tile_size(), biomes)
+        # Game components
+        self.biome_loader = BiomeLoader()
+        self.biome_map = None
+
+    def handle_resize(self, new_width: int, new_height: int):
+        """Handle window resize event"""
+        self.screen_width = new_width
+        self.screen_height = new_height
+        self.screen = pygame.display.set_mode((self.screen_width, self.screen_height), pygame.RESIZABLE)
+        
+        # Update title screen dimensions
+        self.title_screen.screen_width = new_width
+        self.title_screen.screen_height = new_height
+        self.title_screen.setup_menu()
+        
+        # Update biome map if it exists
+        if self.biome_map:
+            self.biome_map.update_screen_size(new_width, new_height)
+
+    def start_game(self):
+        self.current_state = "game"
+        self.biome_loader.load()
+        self.biome_map = BiomeMap(self.biome_loader.get_biomes())
+        self.biome_map.update_screen_size(self.screen_width, self.screen_height)
 
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                self.handle_mouse_click(event.pos)
-
-    def handle_mouse_click(self, pos):
-        mx, my = pos
-        tile = self.map_manager.get_tile_at_pixel(mx, my)
-        if tile:
-            print(f"Clicked Tile ({tile.x}, {tile.y}): {tile.biome.name} ({tile.biome.resource_type} - {tile.biome.resource_variant})")
+            elif event.type == pygame.VIDEORESIZE:
+                self.handle_resize(event.w, event.h)
+            
+            if self.current_state == "title":
+                self.title_screen.handle_event(event)
+            elif self.current_state == "game" and self.biome_map:
+                self.biome_map.handle_event(event)
 
     def update(self):
-        pass  # Add game logic updates here
+        if self.current_state == "title":
+            self.title_screen.update()
+        elif self.current_state == "game":
+            # Update game state here
+            pass
 
-    def render(self):
-        self.screen.fill((0, 0, 0))
-        self.map_manager.render(self.screen)
+    def draw(self):
+        if self.current_state == "title":
+            self.title_screen.draw(self.screen)
+        elif self.current_state == "game":
+            self.screen.fill((0, 0, 0))
+            if self.biome_map:
+                self.biome_map.draw(self.screen)
+
         pygame.display.flip()
 
     def run(self):
-        self.initialize()
-        self.running = True
-
         while self.running:
             self.handle_events()
             self.update()
-            self.render()
+            self.draw()
             self.clock.tick(60)
 
-        pygame.quit() 
+        pygame.quit()
+        sys.exit()

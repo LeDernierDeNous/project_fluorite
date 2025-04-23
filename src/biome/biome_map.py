@@ -2,15 +2,15 @@ import pygame
 from typing import List, Tuple, Optional
 from .biome import Biome
 from noise_layer import NoiseLayer
+from config import Config
 
 class BiomeMap:
     def __init__(self, biomes: List[Biome]):
         self.biomes = biomes
-        self.cell_size = 20
-        self.grid_width = 40
-        self.grid_height = 30
-        self.screen_width = 800
-        self.screen_height = 600
+        self.config = Config()
+        self.cell_size = self.config.TILE_SIZE
+        self.grid_width, self.grid_height = self.config.get_map_dimensions()
+        self.screen_width, self.screen_height = self.config.get_window_dimensions()
         self.offset_x = 0
         self.offset_y = 0
         self.dragging = False
@@ -31,6 +31,42 @@ class BiomeMap:
         self._generate_biome_grid()
         self._center_map()
 
+    def _find_matching_biome(self, height: float, humidity: float, temperature: float, mystical: float) -> Optional[Biome]:
+        """Find the best matching biome for the given properties."""
+        best_match = None
+        best_score = 0
+        
+        for biome in self.biomes:
+            # Calculate how well this biome matches the conditions
+            height_match = 1.0 if biome.height_min <= height <= biome.height_max else 0.0
+            humidity_match = 1.0 if biome.humidity_min <= humidity <= biome.humidity_max else 0.0
+            temperature_match = 1.0 if biome.temperature_min <= temperature <= biome.temperature_max else 0.0
+            mystical_match = 1.0 if biome.mystical_min <= mystical <= biome.mystical_max else 0.0
+            
+            # Calculate overall match score
+            match_score = (height_match + humidity_match + temperature_match + mystical_match) / 4.0
+            
+            # If this biome matches better than the current best, update
+            if match_score > best_score:
+                best_score = match_score
+                best_match = biome
+        
+        # Only return a biome if it matches at least some conditions
+        return best_match if best_score >= 0.5 else None
+
+    def _generate_biome_grid(self):
+        # Generate properties for each grid cell using noise maps
+        for y in range(self.grid_height):
+            for x in range(self.grid_width):
+                # Get all values from noise maps
+                height = self.height_map.get(x, y)
+                humidity = self.humidity_map.get(x, y)
+                temperature = self.temperature_map.get(x, y)
+                mystical = self.mystical_map.get(x, y)
+                
+                # Find the best matching biome
+                self.grid[y][x] = self._find_matching_biome(height, humidity, temperature, mystical)
+
     def update_screen_size(self, width: int, height: int):
         """Update screen dimensions and recenter the map"""
         self.screen_width = width
@@ -43,25 +79,6 @@ class BiomeMap:
         total_height = self.grid_height * self.cell_size
         self.offset_x = (self.screen_width - total_width) // 2
         self.offset_y = (self.screen_height - total_height) // 2
-
-    def _generate_biome_grid(self):
-        # Generate properties for each grid cell using noise maps
-        for y in range(self.grid_height):
-            for x in range(self.grid_width):
-                # Get all values from noise maps
-                height = self.height_map.get(x, y)
-                humidity = self.humidity_map.get(x, y)
-                temperature = self.temperature_map.get(x, y)
-                mystical = self.mystical_map.get(x, y)
-                
-                # Find matching biome based on all properties
-                for biome in self.biomes:
-                    if (biome.height_min <= height <= biome.height_max and 
-                        biome.humidity_min <= humidity <= biome.humidity_max and
-                        biome.temperature_min <= temperature <= biome.temperature_max and
-                        biome.mystical_min <= mystical <= biome.mystical_max):
-                        self.grid[y][x] = biome
-                        break
 
     def _get_tile_at_pos(self, pos: Tuple[int, int]) -> Optional[Tuple[int, int]]:
         """Get the grid coordinates of the tile at the given screen position."""

@@ -2,18 +2,22 @@ import pygame
 from typing import Callable
 from .menu import Menu
 from .components import Button
+from config import Config
 
 class TitleScreen:
     def __init__(self, screen_width: int, screen_height: int):
+        self.config = Config()
         self.screen_width = screen_width
         self.screen_height = screen_height
-        self.menu = Menu()
+        # Initialize menu at screen center
+        self.menu = Menu(screen_width // 2, screen_height // 2)
         self.setup_menu()
+        self.start_game_callback = None
 
     def setup_menu(self):
         # Calculate button dimensions and positions
-        button_width = 200
-        button_height = 50
+        button_width = self.config.BUTTON_WIDTH
+        button_height = self.config.BUTTON_HEIGHT
         button_spacing = 20
         total_height = (button_height * 3) + (button_spacing * 2)
         start_y = (self.screen_height - total_height) // 2
@@ -25,7 +29,10 @@ class TitleScreen:
             width=button_width,
             height=button_height,
             text="Start Game",
-            action=self.on_start_game
+            action=self.on_start_game,
+            color=self.config.BUTTON_COLOR,
+            hover_color=self.config.BUTTON_HOVER_COLOR,
+            text_color=self.config.BUTTON_TEXT_COLOR
         ))
 
         self.menu.add_component(Button(
@@ -48,8 +55,8 @@ class TitleScreen:
 
     def on_start_game(self):
         self.menu.hide()
-        if hasattr(self, 'on_start_game_callback'):
-            self.on_start_game_callback()
+        if self.start_game_callback:
+            self.start_game_callback()
 
     def on_options(self):
         # TODO: Implement options menu
@@ -59,12 +66,12 @@ class TitleScreen:
         pygame.quit()
         exit()
 
-    def set_start_game_callback(self, callback: Callable[[], None]):
-        self.on_start_game_callback = callback
+    def set_start_game_callback(self, callback):
+        self.start_game_callback = callback
 
     def draw(self, surface: pygame.Surface):
         # Draw background
-        surface.fill((0, 0, 0))
+        surface.fill(self.config.BACKGROUND_COLOR)
         
         # Draw title
         font = pygame.font.Font(None, 74)
