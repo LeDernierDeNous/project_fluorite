@@ -2,7 +2,8 @@ from random import uniform
 
 class Biome:
     def __init__(self, name, height_min, height_max, humidity_min, humidity_max,
-                 temperature_min, temperature_max, mystical_min, mystical_max, resource):
+                 temperature_min, temperature_max, mystical_min, mystical_max, 
+                 resource_type, resource_variant, color):
         self.name = name
         self.height_min = height_min
         self.height_max = height_max
@@ -12,14 +13,17 @@ class Biome:
         self.temperature_max = temperature_max
         self.mystical_min = mystical_min
         self.mystical_max = mystical_max
-        self.resource = resource
+        self.resource_type = resource_type
+        self.resource_variant = resource_variant
+        self.color = color
 
     def __repr__(self):
         return (f"Biome(name={self.name}, height=({self.height_min}, {self.height_max}), "
                 f"humidity=({self.humidity_min}, {self.humidity_max}), "
                 f"temperature=({self.temperature_min}, {self.temperature_max}), "
                 f"mystical=({self.mystical_min}, {self.mystical_max}), "
-                f"resource={self.resource})")
+                f"resource_type={self.resource_type}, resource_variant={self.resource_variant}, "
+                f"color={self.color})")
 
     def generate_properties(self):
         height = uniform(self.height_min, self.height_max)
@@ -35,8 +39,8 @@ class Biome:
     
     def matches(self, height, humidity, temperature, mystical):
         return (
-            self.height_range[0] <= height <= self.height_range[1] and
-            self.humidity_range[0] <= humidity <= self.humidity_range[1] and
-            self.temperature_range[0] <= temperature <= self.temperature_range[1] and
-            self.mystical_range[0] <= mystical <= self.mystical_range[1]
+            self.height_min <= height <= self.height_max and
+            self.humidity_min <= humidity <= self.humidity_max and
+            self.temperature_min <= temperature <= self.temperature_max and
+            self.mystical_min <= mystical <= self.mystical_max
         )

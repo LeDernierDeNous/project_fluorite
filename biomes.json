@@ -10,7 +10,8 @@
         "mystical_min": 0.3,
         "mystical_max": 0.4,
         "resource_type": "wood",
-        "resource_variant": "Eldertree Timber"
+        "resource_variant": "Eldertree Timber",
+        "color": [34, 139, 34]
     },
     {
         "name": "Whispering Grove",
@@ -23,7 +24,8 @@
         "mystical_min": 0.5,
         "mystical_max": 0.6,
         "resource_type": "wood",
-        "resource_variant": "Whisperwood Timber"
+        "resource_variant": "Whisperwood Timber",
+        "color": [46, 139, 87]
     },
     {
         "name": "Crimson Thicket",
@@ -36,7 +38,8 @@
         "mystical_min": 0.2,
         "mystical_max": 0.3,
         "resource_type": "wood",
-        "resource_variant": "Crimson Bark"
+        "resource_variant": "Crimson Bark",
+        "color": [139, 0, 0]
     },
     {
         "name": "Mistmoss Woods",
@@ -49,7 +52,8 @@
         "mystical_min": 0.4,
         "mystical_max": 0.5,
         "resource_type": "wood",
-        "resource_variant": "Mistmoss Logs"
+        "resource_variant": "Mistmoss Logs",
+        "color": [47, 79, 79]
     },
     {
         "name": "Gloomshade Jungle",
@@ -62,7 +66,8 @@
         "mystical_min": 0.6,
         "mystical_max": 0.7,
         "resource_type": "wood",
-        "resource_variant": "Gloomshade Lumber"
+        "resource_variant": "Gloomshade Lumber",
+        "color": [0, 100, 0]
     },
     {
         "name": "Cloudpine Heights",
@@ -75,7 +80,8 @@
         "mystical_min": 0.1,
         "mystical_max": 0.2,
         "resource_type": "wood",
-        "resource_variant": "Cloudpine Wood"
+        "resource_variant": "Cloudpine Wood",
+        "color": [144, 238, 144]
     },
     {
         "name": "Fungalglen",
@@ -88,7 +94,8 @@
         "mystical_min": 0.7,
         "mystical_max": 0.8,
         "resource_type": "wood",
-        "resource_variant": "Fungalglen Bark"
+        "resource_variant": "Fungalglen Bark",
+        "color": [85, 107, 47]
     },
     {
         "name": "Goldenstep Fields",
@@ -101,7 +108,8 @@
         "mystical_min": 0.3,
         "mystical_max": 0.4,
         "resource_type": "food",
-        "resource_variant": "Golden Grain"
+        "resource_variant": "Golden Grain",
+        "color": [218, 165, 32]
     },
     {
         "name": "Sapphire Marsh",
@@ -114,7 +122,8 @@
         "mystical_min": 0.5,
         "mystical_max": 0.6,
         "resource_type": "food",
-        "resource_variant": "Sapphire Fruit"
+        "resource_variant": "Sapphire Fruit",
+        "color": [0, 191, 255]
     },
     {
         "name": "Embervine Rainforest",
@@ -127,7 +136,8 @@
         "mystical_min": 0.6,
         "mystical_max": 0.7,
         "resource_type": "food",
-        "resource_variant": "Emberfruit"
+        "resource_variant": "Emberfruit",
+        "color": [255, 69, 0]
     },
     {
         "name": "Shimmering Glades",
@@ -140,7 +150,8 @@
         "mystical_min": 0.7,
         "mystical_max": 0.8,
         "resource_type": "food",
-        "resource_variant": "Shimmerleaf"
+        "resource_variant": "Shimmerleaf",
+        "color": [255, 215, 0]
     },
     {
         "name": "Frostleaf Meadows",
@@ -153,7 +164,8 @@
         "mystical_min": 0.2,
         "mystical_max": 0.3,
         "resource_type": "food",
-        "resource_variant": "Frostleaf Berries"
+        "resource_variant": "Frostleaf Berries",
+        "color": [173, 216, 230]
     },
     {
         "name": "Verdant Hollow",
@@ -166,7 +178,8 @@
         "mystical_min": 0.4,
         "mystical_max": 0.5,
         "resource_type": "food",
-        "resource_variant": "Verdant Beans"
+        "resource_variant": "Verdant Beans",
+        "color": [50, 205, 50]
     },
     {
         "name": "Duskwheat Prairie",
@@ -179,7 +192,8 @@
         "mystical_min": 0.1,
         "mystical_max": 0.2,
         "resource_type": "food",
-        "resource_variant": "Duskwheat"
+        "resource_variant": "Duskwheat",
+        "color": [139, 69, 19]
     },
     {
         "name": "Thunderstone Cliffs",
@@ -192,7 +206,8 @@
         "mystical_min": 0.3,
         "mystical_max": 0.4,
         "resource_type": "mineral",
-        "resource_variant": "Thunderstone Ore"
+        "resource_variant": "Thunderstone Ore",
+        "color": [112, 128, 144]
     },
     {
         "name": "Obsidian Wastes",
@@ -205,7 +220,8 @@
         "mystical_min": 0.1,
         "mystical_max": 0.2,
         "resource_type": "mineral",
-        "resource_variant": "Obsidian Shards"
+        "resource_variant": "Obsidian Shards",
+        "color": [47, 79, 79]
     },
     {
         "name": "Glimmerdeep Caverns",
@@ -218,7 +234,8 @@
         "mystical_min": 0.4,
         "mystical_max": 0.5,
         "resource_type": "mineral",
-        "resource_variant": "Glimmer Crystals"
+        "resource_variant": "Glimmer Crystals",
+        "color": [135, 206, 235]
     },
     {
         "name": "Ironfang Peaks",
@@ -231,7 +248,8 @@
         "mystical_min": 0.2,
         "mystical_max": 0.3,
         "resource_type": "mineral",
-        "resource_variant": "Ironfang Ore"
+        "resource_variant": "Ironfang Ore",
+        "color": [169, 169, 169]
     },
     {
         "name": "Crystalfen",
@@ -244,7 +262,8 @@
         "mystical_min": 0.5,
         "mystical_max": 0.6,
         "resource_type": "mineral",
-        "resource_variant": "Crystal Bloom"
+        "resource_variant": "Crystal Bloom",
+        "color": [230, 230, 250]
     },
     {
         "name": "Ashen Barrens",
@@ -257,7 +276,8 @@
         "mystical_min": 0.6,
         "mystical_max": 0.7,
         "resource_type": "mineral",
-        "resource_variant": "Ashrock"
+        "resource_variant": "Ashrock",
+        "color": [128, 128, 128]
     },
     {
         "name": "Deepmire Bog",
@@ -270,6 +290,7 @@
         "mystical_min": 0.7,
         "mystical_max": 0.8,
         "resource_type": "mineral",
-        "resource_variant": "Deepmire Resin"
+        "resource_variant": "Deepmire Resin",
+        "color": [85, 107, 47]
     }
 ]
