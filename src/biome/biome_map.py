@@ -1,8 +1,9 @@
 import pygame
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Dict
 from .biome import Biome
 from noise_layer import NoiseLayer
 from config import Config
+from ui.components.resource_filter import ResourceFilter
 
 class BiomeMap:
     def __init__(self, biomes: List[Biome]):
@@ -19,6 +20,17 @@ class BiomeMap:
         # Tooltip properties
         self.hovered_tile: Optional[Tuple[int, int]] = None
         self.font = pygame.font.Font(None, 24)
+        self.small_font = pygame.font.Font(None, 18)
+        
+        # Resource filter
+        self.resource_types = list(set(biome.resource_type for biome in biomes))
+        self.resource_filter = ResourceFilter(
+            10,  # x position
+            10,  # y position
+            self.resource_types,
+            self._on_filter_change
+        )
+        self.active_filters = {resource: True for resource in self.resource_types}
         
         # Generate all noise maps with different scales for variety
         self.height_map = NoiseLayer(self.grid_width, self.grid_height, scale=20.0)
@@ -30,6 +42,9 @@ class BiomeMap:
         self.grid = [[None for _ in range(self.grid_width)] for _ in range(self.grid_height)]
         self._generate_biome_grid()
         self._center_map()
+
+    def _on_filter_change(self, filters: Dict[str, bool]):
+        self.active_filters = filters
 
     def _find_matching_biome(self, height: float, humidity: float, temperature: float, mystical: float) -> Optional[Biome]:
         """Find the best matching biome for the given properties."""
@@ -106,8 +121,17 @@ class BiomeMap:
                 # Draw biome if present
                 biome = self.grid[y][x]
                 if biome:
-                    # Draw biome color
-                    pygame.draw.rect(surface, biome.color, rect)
+                    # Check if biome's resource type is active in filter
+                    if self.active_filters.get(biome.resource_type, True):
+                        # Draw biome color at full opacity
+                        pygame.draw.rect(surface, biome.color, rect)
+                    else:
+                        # Draw biome color at reduced opacity
+                        faded_color = tuple(int(c * 0.3) for c in biome.color)
+                        pygame.draw.rect(surface, faded_color, rect)
+
+        # Draw resource filter
+        self.resource_filter.draw(surface)
 
         # Draw tooltip if hovering over a tile with a biome
         if self.hovered_tile:
@@ -115,31 +139,59 @@ class BiomeMap:
             biome = self.grid[y][x]
             if biome:
                 # Create tooltip text
-                text = self.font.render(biome.name, True, (255, 255, 255))
-                text_rect = text.get_rect()
+                title_text = self.font.render(biome.name, True, (255, 255, 255))
+                title_rect = title_text.get_rect()
                 
-                # Position tooltip above the tile
+                # Create environment info text
+                env_text = self.small_font.render(
+                    f"Height: {biome.height_min:.1f}-{biome.height_max:.1f} | "
+                    f"Humidity: {biome.humidity_min:.1f}-{biome.humidity_max:.1f} | "
+                    f"Temp: {biome.temperature_min:.1f}-{biome.temperature_max:.1f}",
+                    True, (200, 200, 200)
+                )
+                env_rect = env_text.get_rect()
+                
+                # Create resources text
+                resources_text = self.small_font.render(
+                    f"Resource: {biome.resource_type} ({biome.resource_variant})",
+                    True, (200, 200, 200)
+                )
+                resources_rect = resources_text.get_rect()
+                
+                # Calculate tooltip dimensions
+                padding = 10
+                tooltip_width = max(title_rect.width, env_rect.width, resources_rect.width) + padding * 2
+                tooltip_height = title_rect.height + env_rect.height + resources_rect.height + padding * 4
+                
+                # Position tooltip
                 tooltip_x = x * self.cell_size + self.offset_x
-                tooltip_y = y * self.cell_size + self.offset_y - text_rect.height - 5
+                tooltip_y = y * self.cell_size + self.offset_y - tooltip_height - 5
                 
                 # Ensure tooltip stays within screen bounds
                 if tooltip_y < 0:
                     tooltip_y = y * self.cell_size + self.offset_y + self.cell_size + 5
+                if tooltip_x + tooltip_width > self.screen_width:
+                    tooltip_x = self.screen_width - tooltip_width - 5
                 
                 # Draw tooltip background
                 bg_rect = pygame.Rect(
-                    tooltip_x - 5,
-                    tooltip_y - 2,
-                    text_rect.width + 10,
-                    text_rect.height + 4
+                    tooltip_x - padding,
+                    tooltip_y - padding,
+                    tooltip_width,
+                    tooltip_height
                 )
                 pygame.draw.rect(surface, (0, 0, 0), bg_rect)
                 pygame.draw.rect(surface, (255, 255, 255), bg_rect, 1)
                 
                 # Draw tooltip text
-                surface.blit(text, (tooltip_x, tooltip_y))
+                surface.blit(title_text, (tooltip_x, tooltip_y))
+                surface.blit(env_text, (tooltip_x, tooltip_y + title_rect.height + padding))
+                surface.blit(resources_text, (tooltip_x, tooltip_y + title_rect.height + env_rect.height + padding * 2))
 
     def handle_event(self, event: pygame.event.Event):
+        # Handle resource filter events first
+        self.resource_filter.handle_event(event)
+
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:  # Left click
                 self.dragging = True
