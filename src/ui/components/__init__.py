@@ -1,5 +1,6 @@
-from .resource_filter import ResourceFilter
 from .button import Button
-from .ui_component import UIComponent
+from .slider import Slider
+from .resource_filter import ResourceFilter
+from .noise_map_selector import NoiseMapSelector
 
-__all__ = ['ResourceFilter', 'Button', 'UIComponent'] 
+__all__ = ['Button', 'Slider', 'ResourceFilter', 'NoiseMapSelector'] 

@@ -1,6 +1,7 @@
 import pygame
 from typing import List, Dict, Callable
 from config import Config
+from ui.style import StyleManager, FontSize
 
 class ResourceFilter:
     def __init__(self, x: int, y: int, resource_types: List[str], on_filter_change: Callable[[Dict[str, bool]], None]):
@@ -9,8 +10,7 @@ class ResourceFilter:
         self.y = y
         self.resource_types = resource_types
         self.on_filter_change = on_filter_change
-        self.font = pygame.font.Font(None, 24)
-        self.small_font = pygame.font.Font(None, 18)
+        self.style = StyleManager.get_instance().get_style()
         self.checkbox_size = 20
         self.spacing = 30
         self.filters = {resource: True for resource in resource_types}
@@ -40,11 +40,11 @@ class ResourceFilter:
         total_height = filter_height + stats_height + 10  # 10 pixels gap between sections
         
         bg_rect = pygame.Rect(self.x, self.y, width, total_height)
-        pygame.draw.rect(surface, (50, 50, 50), bg_rect)
-        pygame.draw.rect(surface, (100, 100, 100), bg_rect, 2)
+        pygame.draw.rect(surface, self.style.get_color("surface"), bg_rect)
+        pygame.draw.rect(surface, self.style.get_color("border"), bg_rect, 2)
 
         # Draw title
-        title = self.font.render("Resource Filter", True, (255, 255, 255))
+        title = self.style.get_font(FontSize.BODY).render("Resource Filter", True, self.style.get_color("text"))
         surface.blit(title, (self.x + padding, self.y + padding))
 
         # Draw checkboxes and labels
@@ -53,26 +53,26 @@ class ResourceFilter:
             checkbox_rect = pygame.Rect(self.x + padding, y, self.checkbox_size, self.checkbox_size)
             
             # Draw checkbox
-            pygame.draw.rect(surface, (100, 100, 100), checkbox_rect)
+            pygame.draw.rect(surface, self.style.get_color("border"), checkbox_rect)
             if self.filters[resource]:
-                pygame.draw.rect(surface, (200, 200, 200), checkbox_rect.inflate(-4, -4))
+                pygame.draw.rect(surface, self.style.get_color("primary"), checkbox_rect.inflate(-4, -4))
             
             # Draw label
-            label = self.font.render(resource, True, (255, 255, 255))
+            label = self.style.get_font(FontSize.BODY).render(resource, True, self.style.get_color("text"))
             surface.blit(label, (self.x + padding + self.checkbox_size + 10, y))
 
             # Highlight hovered checkbox
             if self.hovered_checkbox == i:
-                pygame.draw.rect(surface, (150, 150, 150), checkbox_rect, 2)
+                pygame.draw.rect(surface, self.style.get_color("hover"), checkbox_rect, 2)
 
         # Draw separator line
         separator_y = self.y + filter_height
-        pygame.draw.line(surface, (100, 100, 100), 
+        pygame.draw.line(surface, self.style.get_color("border"), 
                         (self.x + padding, separator_y),
                         (self.x + width - padding, separator_y))
 
         # Draw statistics title
-        stats_title = self.font.render("Resource Distribution", True, (255, 255, 255))
+        stats_title = self.style.get_font(FontSize.BODY).render("Resource Distribution", True, self.style.get_color("text"))
         surface.blit(stats_title, (self.x + padding, separator_y + padding))
 
         # Draw resource statistics
@@ -81,7 +81,7 @@ class ResourceFilter:
             count = self.resource_counts[resource]
             percentage = (count / self.total_biomes * 100) if self.total_biomes > 0 else 0
             stat_text = f"{resource}: {count} ({percentage:.1f}%)"
-            stat_label = self.small_font.render(stat_text, True, (200, 200, 200))
+            stat_label = self.style.get_font(FontSize.SMALL).render(stat_text, True, self.style.get_color("text_secondary"))
             surface.blit(stat_label, (self.x + padding, y))
 
     def handle_event(self, event: pygame.event.Event):
