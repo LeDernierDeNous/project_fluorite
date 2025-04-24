@@ -55,7 +55,11 @@ class Game:
             if self.current_state == "title":
                 self.title_screen.handle_event(event)
             elif self.current_state == "game" and self.biome_map:
-                self.biome_map.handle_event(event)
+                result = self.biome_map.handle_event(event)
+                if result == "menu":
+                    self.current_state = "title"
+                    self.title_screen.setup_menu()  # Reset the menu state
+                    self.biome_map = None  # Clear the game state
 
     def update(self):
         if self.current_state == "title":

@@ -1,4 +1,5 @@
 # Basic configuration
+from ui.style import ColorPalette
 
 class Config:
     def __init__(self):
@@ -19,6 +20,9 @@ class Config:
         self.BUTTON_COLOR = (100, 100, 100)
         self.BUTTON_HOVER_COLOR = (150, 150, 150)
         self.BUTTON_TEXT_COLOR = (255, 255, 255)
+        
+        # Theme configuration
+        self.DEFAULT_THEME = ColorPalette.DARK
 
     def get_map_dimensions(self):
         return self.MAP_WIDTH, self.MAP_HEIGHT

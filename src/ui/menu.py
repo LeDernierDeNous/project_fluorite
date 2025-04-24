@@ -19,12 +19,26 @@ class Menu:
         if not self.visible:
             return
 
-        # Draw menu background
-        pygame.draw.rect(
-            surface,
-            self.background_color,
-            (self.x - 150, self.y - 100, 300, 200)
-        )
+        # Calculate background dimensions based on components
+        if self.components:
+            # Find the min and max positions of all components
+            min_x = min(comp.rect.left for comp in self.components)
+            max_x = max(comp.rect.right for comp in self.components)
+            min_y = min(comp.rect.top for comp in self.components)
+            max_y = max(comp.rect.bottom for comp in self.components)
+            
+            # Add padding
+            padding = 20
+            bg_rect = pygame.Rect(
+                min_x - padding,
+                min_y - padding,
+                max_x - min_x + padding * 2,
+                max_y - min_y + padding * 2
+            )
+            
+            # Draw menu background
+            pygame.draw.rect(surface, self.background_color, bg_rect)
+            pygame.draw.rect(surface, (100, 100, 100), bg_rect, 2)  # Add a border
 
         for component in self.components:
             component.draw(surface)
