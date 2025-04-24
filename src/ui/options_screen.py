@@ -24,32 +24,30 @@ class OptionsScreen:
         for i, palette in enumerate(ColorPalette):
             y = start_y + i * (button_height + spacing)
             button = Button(
-                (screen_width - button_width) // 2,
-                y,
-                button_width,
-                button_height,
-                palette.name,
-                self.style.get_font(FontSize.BODY),
-                self.style.get_color("primary"),
-                self.style.get_color("hover"),
-                self.style.get_color("text"),
-                lambda p=palette: self._on_palette_selected(p)
+                x=(screen_width - button_width) // 2,
+                y=y,
+                width=button_width,
+                height=button_height,
+                text=palette.name,
+                action=lambda p=palette: self._on_palette_selected(p),
+                color_type="primary",
+                hover_color_type="hover",
+                text_color_type="text"
             )
             self.palette_buttons.append(button)
             
         # Create back button
         back_y = start_y + len(ColorPalette) * (button_height + spacing)
         self.back_button = Button(
-            (screen_width - button_width) // 2,
-            back_y,
-            button_width,
-            button_height,
-            "Back",
-            self.style.get_font(FontSize.BODY),
-            self.style.get_color("secondary"),
-            self.style.get_color("hover"),
-            self.style.get_color("text"),
-            self._on_back
+            x=(screen_width - button_width) // 2,
+            y=back_y,
+            width=button_width,
+            height=button_height,
+            text="Back",
+            action=self._on_back,
+            color_type="secondary",
+            hover_color_type="hover",
+            text_color_type="text"
         )
         
     def _on_palette_selected(self, palette: ColorPalette):
@@ -59,16 +57,14 @@ class OptionsScreen:
         # Update all button styles
         for button in self.palette_buttons:
             button.update_style(
-                self.style.get_font(FontSize.BODY),
-                self.style.get_color("primary"),
-                self.style.get_color("hover"),
-                self.style.get_color("text")
+                color_type="primary",
+                hover_color_type="hover",
+                text_color_type="text"
             )
         self.back_button.update_style(
-            self.style.get_font(FontSize.BODY),
-            self.style.get_color("secondary"),
-            self.style.get_color("hover"),
-            self.style.get_color("text")
+            color_type="secondary",
+            hover_color_type="hover",
+            text_color_type="text"
         )
         
     def _on_back(self):
@@ -101,4 +97,8 @@ class OptionsScreen:
                     button.on_click()
             if self.back_button.is_clicked(event.pos):
                 return self.back_button.on_click()
-        return None 
+        return None
+
+    def update(self):
+        """Update the options screen state"""
+        pass 

@@ -1,6 +1,7 @@
 import pygame
 import sys
 from ui.title_screen import TitleScreen
+from ui.options_screen import OptionsScreen
 from biome.biome_loader import BiomeLoader
 from biome.biome_map import BiomeMap
 from config import Config
@@ -16,9 +17,11 @@ class Game:
         self.running = True
 
         # Game states
-        self.current_state = "title"  # title, game
+        self.current_state = "title"  # title, game, options
         self.title_screen = TitleScreen(self.screen_width, self.screen_height)
         self.title_screen.set_start_game_callback(self.start_game)
+        self.title_screen.set_options_callback(self.show_options)
+        self.options_screen = OptionsScreen(self.screen_width, self.screen_height)
 
         # Game components
         self.biome_loader = BiomeLoader()
@@ -35,6 +38,10 @@ class Game:
         self.title_screen.screen_height = new_height
         self.title_screen.setup_menu()
         
+        # Update options screen dimensions
+        self.options_screen.screen_width = new_width
+        self.options_screen.screen_height = new_height
+        
         # Update biome map if it exists
         if self.biome_map:
             self.biome_map.update_screen_size(new_width, new_height)
@@ -45,6 +52,9 @@ class Game:
         self.biome_map = BiomeMap(self.biome_loader.get_biomes())
         self.biome_map.update_screen_size(self.screen_width, self.screen_height)
 
+    def show_options(self):
+        self.current_state = "options"
+
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -54,6 +64,10 @@ class Game:
             
             if self.current_state == "title":
                 self.title_screen.handle_event(event)
+            elif self.current_state == "options":
+                result = self.options_screen.handle_event(event)
+                if result == "title":
+                    self.current_state = "title"
             elif self.current_state == "game" and self.biome_map:
                 result = self.biome_map.handle_event(event)
                 if result == "menu":
@@ -64,6 +78,8 @@ class Game:
     def update(self):
         if self.current_state == "title":
             self.title_screen.update()
+        elif self.current_state == "options":
+            self.options_screen.update()
         elif self.current_state == "game":
             # Update game state here
             pass
@@ -71,6 +87,8 @@ class Game:
     def draw(self):
         if self.current_state == "title":
             self.title_screen.draw(self.screen)
+        elif self.current_state == "options":
+            self.options_screen.draw(self.screen)
         elif self.current_state == "game":
             self.screen.fill((0, 0, 0))
             if self.biome_map:

@@ -5,11 +5,13 @@ from noise_layer import HeightNoiseLayer, HumidityNoiseLayer, TemperatureNoiseLa
 from config import Config
 from ui.components.resource_filter import ResourceFilter
 from ui.components.noise_map_selector import NoiseMapSelector
+from ui.style import StyleManager, FontSize
 
 class BiomeMap:
     def __init__(self, biomes: List[Biome]):
         self.biomes = biomes
         self.config = Config()
+        self.style = StyleManager.get_instance().get_style()
         self.cell_size = self.config.TILE_SIZE
         self.grid_width, self.grid_height = self.config.get_map_dimensions()
         self.screen_width, self.screen_height = self.config.get_window_dimensions()
@@ -20,8 +22,6 @@ class BiomeMap:
         
         # Tooltip properties
         self.hovered_tile: Optional[Tuple[int, int]] = None
-        self.font = pygame.font.Font(None, 24)
-        self.small_font = pygame.font.Font(None, 18)
         
         # Resource filter
         self.resource_types = list(set(biome.resource_type for biome in biomes))
@@ -170,11 +170,11 @@ class BiomeMap:
         
         # Draw background
         bg_rect = pygame.Rect(x, y, width, height)
-        pygame.draw.rect(surface, (50, 50, 50), bg_rect)
-        pygame.draw.rect(surface, (100, 100, 100), bg_rect, 1)
+        pygame.draw.rect(surface, self.style.get_color("surface"), bg_rect)
+        pygame.draw.rect(surface, self.style.get_color("border"), bg_rect, 1)
         
         # Draw title
-        title = self.small_font.render("Value Distribution", True, (255, 255, 255))
+        title = self.style.get_font(FontSize.SMALL).render("Value Distribution", True, self.style.get_color("text"))
         surface.blit(title, (x + padding, y + padding))
         
         # Draw histogram bars
@@ -184,7 +184,7 @@ class BiomeMap:
             bar_x = x + i * bar_width
             bar_y = y + height - bar_height
             bar_rect = pygame.Rect(bar_x, bar_y, bar_width - 1, bar_height)
-            pygame.draw.rect(surface, (200, 200, 200), bar_rect)
+            pygame.draw.rect(surface, self.style.get_color("primary"), bar_rect)
 
     def draw(self, surface: pygame.Surface):
         # Draw grid background and biomes/noise maps
@@ -198,8 +198,8 @@ class BiomeMap:
                 )
                 
                 # Draw cell background
-                pygame.draw.rect(surface, (50, 50, 50), rect)
-                pygame.draw.rect(surface, (30, 30, 30), rect, 1)
+                pygame.draw.rect(surface, self.style.get_color("surface"), rect)
+                pygame.draw.rect(surface, self.style.get_color("border"), rect, 1)
                 
                 # Check if any noise map is active
                 if any(self.active_noise_maps.values()):
@@ -268,26 +268,26 @@ class BiomeMap:
                 # Show biome name
                 title = biome.name if biome else "Empty"
             
-            title_text = self.font.render(title, True, (255, 255, 255))
+            title_text = self.style.get_font(FontSize.BODY).render(title, True, self.style.get_color("text"))
             texts.append(title_text)
             rects.append(title_text.get_rect())
             
             if biome:
                 # Add environment info if viewing biomes
                 if not any(self.active_noise_maps.values()):
-                    env_text = self.small_font.render(
+                    env_text = self.style.get_font(FontSize.SMALL).render(
                         f"Height: {biome.height_min:.1f}-{biome.height_max:.1f} | "
                         f"Humidity: {biome.humidity_min:.1f}-{biome.humidity_max:.1f} | "
                         f"Temp: {biome.temperature_min:.1f}-{biome.temperature_max:.1f}",
-                        True, (200, 200, 200)
+                        True, self.style.get_color("text_secondary")
                     )
                     texts.append(env_text)
                     rects.append(env_text.get_rect())
                 
                 # Add resources info
-                resources_text = self.small_font.render(
+                resources_text = self.style.get_font(FontSize.SMALL).render(
                     f"Resource: {biome.resource_type} ({biome.resource_variant})",
-                    True, (200, 200, 200)
+                    True, self.style.get_color("text_secondary")
                 )
                 texts.append(resources_text)
                 rects.append(resources_text.get_rect())
@@ -314,8 +314,8 @@ class BiomeMap:
                 tooltip_width,
                 tooltip_height
             )
-            pygame.draw.rect(surface, (0, 0, 0), bg_rect)
-            pygame.draw.rect(surface, (255, 255, 255), bg_rect, 1)
+            pygame.draw.rect(surface, self.style.get_color("surface"), bg_rect)
+            pygame.draw.rect(surface, self.style.get_color("border"), bg_rect, 1)
             
             # Draw tooltip text
             current_y = tooltip_y
