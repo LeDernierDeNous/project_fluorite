@@ -24,17 +24,18 @@ class TitleScreen(Scene):
     def _setup_menu(self) -> None:
         """Setup or update the menu layout."""
         # Calculate button dimensions
-        button_width = min(self._config.window_config.width // 4, 200)
-        button_height = min(self._config.window_config.height // 12, 50)
-        spacing = self._config.window_config.height // 36
+        width, height = self._config.get_window_dimensions()
+        button_width = min(width // 4, 200)
+        button_height = min(height // 12, 50)
+        spacing = height // 36
         
         # Calculate total height needed for all buttons
         total_height = 3 * (button_height + spacing)
-        start_y = (self._config.window_config.height - total_height) // 2
+        start_y = (height - total_height) // 2
         
         # Create start button
         self._start_button = Button(
-            x=(self._config.window_config.width - button_width) // 2,
+            x=(width - button_width) // 2,
             y=start_y,
             width=button_width,
             height=button_height,
@@ -47,7 +48,7 @@ class TitleScreen(Scene):
         
         # Create options button
         self._options_button = Button(
-            x=(self._config.window_config.width - button_width) // 2,
+            x=(width - button_width) // 2,
             y=start_y + button_height + spacing,
             width=button_width,
             height=button_height,
@@ -60,7 +61,7 @@ class TitleScreen(Scene):
         
         # Create quit button
         self._quit_button = Button(
-            x=(self._config.window_config.width - button_width) // 2,
+            x=(width - button_width) // 2,
             y=start_y + 2 * (button_height + spacing),
             width=button_width,
             height=button_height,
@@ -90,6 +91,10 @@ class TitleScreen(Scene):
         Args:
             event: Pygame event to handle
         """
+        if event.type == pygame.VIDEORESIZE:
+            # Update UI for new window size
+            self._setup_menu()
+            
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             if self._start_button.is_clicked(event.pos):
                 self._start_button.on_click()
@@ -108,22 +113,33 @@ class TitleScreen(Scene):
         Args:
             surface: Surface to draw on
         """
+        width, height = self._config.get_window_dimensions()
+        
         # Draw title
         title_font = self._style.get_font(FontSize.TITLE)
         title_text = title_font.render("Biome Explorer", True, self._style.get_color("text"))
-        title_rect = title_text.get_rect(center=(self._config.window_config.width // 2, 
-                                               self._config.window_config.height // 4))
+        title_rect = title_text.get_rect(center=(width // 2, height // 4))
         surface.blit(title_text, title_rect)
         
         # Draw subtitle
         subtitle_font = self._style.get_font(FontSize.HEADING)
         subtitle_text = subtitle_font.render("Explore and Discover", True, 
                                            self._style.get_color("text_secondary"))
-        subtitle_rect = subtitle_text.get_rect(center=(self._config.window_config.width // 2, 
+        subtitle_rect = subtitle_text.get_rect(center=(width // 2, 
                                                      title_rect.bottom + 20))
         surface.blit(subtitle_text, subtitle_rect)
         
         # Draw all buttons
         self._start_button.draw(surface)
         self._options_button.draw(surface)
-        self._quit_button.draw(surface) 
+        self._quit_button.draw(surface)
+
+    def on_window_resize(self, width: int, height: int) -> None:
+        """Handle window resize event.
+        
+        Args:
+            width: New window width
+            height: New window height
+        """
+        # Update UI layout for new window size
+        self._setup_menu() 

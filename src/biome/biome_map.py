@@ -48,8 +48,8 @@ class BiomeMap:
         self._dimensions = MapDimensions(
             grid_width=self._config.map_config.width,
             grid_height=self._config.map_config.height,
-            screen_width=self._config.window_config.width,
-            screen_height=self._config.window_config.height,
+            screen_width=self._config.get_window_dimensions()[0],
+            screen_height=self._config.get_window_dimensions()[1],
             cell_size=self._config.map_config.tile_size
         )
         
@@ -94,9 +94,11 @@ class BiomeMap:
         self._active_filters = {resource: True for resource in self._resource_types}
         
         # Noise map selector
+        margin = 10
+        # Position it in the top-right corner with margin
         self._noise_selector = NoiseMapSelector(
-            x=self._dimensions.screen_width - 210,
-            y=10,
+            x=self._dimensions.screen_width - 210 - margin,
+            y=margin,
             noise_types=list(self._noise_maps.keys()),
             on_map_change=self._on_noise_map_change
         )
@@ -173,8 +175,16 @@ class BiomeMap:
         self._dimensions.screen_width = width
         self._dimensions.screen_height = height
         
-        # Update UI components
-        self._noise_selector.x = width - 210
+        # Update UI components with consistent margins
+        margin = 10
+        
+        # Reposition resource filter to stay in top-left corner
+        self._resource_filter.x = margin
+        self._resource_filter.y = margin
+        
+        # Reposition noise selector to stay in top-right corner
+        self._noise_selector.x = width - 210 - margin
+        self._noise_selector.y = margin
         
         # Recenter the map
         self._center_map()
@@ -250,8 +260,8 @@ class BiomeMap:
         # Histogram parameters
         num_bins = 20
         padding = 10
-        width = 200
-        height = 100
+        width = min(200, self._dimensions.screen_width // 6)  # Scale with screen width
+        height = min(100, self._dimensions.screen_height // 8)  # Scale with screen height
         x = self._dimensions.screen_width - width - padding
         y = self._dimensions.screen_height - height - padding
         

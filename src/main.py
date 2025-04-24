@@ -3,6 +3,8 @@ import sys
 from typing import NoReturn
 from game import Game
 from config import Config
+import pygame
+import argparse
 
 def setup_logging() -> None:
     """Configure logging for the application.
@@ -32,6 +34,22 @@ def validate_config(config: Config) -> bool:
         return False
     return True
 
+def parse_arguments():
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(description="Biome Explorer Game")
+    parser.add_argument(
+        "--fullscreen", 
+        action="store_true", 
+        help="Start the game in fullscreen mode"
+    )
+    parser.add_argument(
+        "--fps", 
+        type=int, 
+        default=60, 
+        help="Target frames per second (default: 60)"
+    )
+    return parser.parse_args()
+
 def main() -> NoReturn:
     """Main entry point for the game.
     
@@ -55,9 +73,16 @@ def main() -> NoReturn:
             logging.error("Failed to validate configuration")
             sys.exit(1)
             
+        # Parse command line arguments
+        args = parse_arguments()
+        
         # Create and run game
         game = Game()
         logging.info("Game initialized successfully")
+        
+        # Set fullscreen if requested
+        if args.fullscreen:
+            game.toggle_fullscreen()
         
         # Run the game
         game.run()

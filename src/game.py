@@ -21,17 +21,20 @@ class Game:
         _clock: Pygame clock for frame rate control
         _running: Flag indicating if the game is running
         _scene_manager: Manager for game scenes
+        _is_fullscreen: Flag indicating if the game is in fullscreen mode
     """
     
     def __init__(self) -> None:
         """Initialize the game with default settings and components."""
         pygame.init()
         self._config = Config()
-        self._screen_width, self._screen_height = self._config.get_window_dimensions()
+        # Use initial window dimensions for startup
+        self._screen_width, self._screen_height = self._config.get_initial_window_dimensions()
         self._screen = pygame.display.set_mode((self._screen_width, self._screen_height), pygame.RESIZABLE)
         pygame.display.set_caption("Biome Explorer")
         self._clock = pygame.time.Clock()
         self._running = True
+        self._is_fullscreen = False
 
         # Initialize scene manager
         self._scene_manager = SceneManager(self._config)
@@ -54,9 +57,33 @@ class Game:
         self._screen_width = new_width
         self._screen_height = new_height
         self._screen = pygame.display.set_mode((self._screen_width, self._screen_height), pygame.RESIZABLE)
-        # Update window config
-        self._config.window_config.width = new_width
-        self._config.window_config.height = new_height
+        # Update current window dimensions in config
+        self._config.update_window_dimensions(new_width, new_height)
+        # Notify scene manager of window resize
+        self._scene_manager.handle_window_resize(new_width, new_height)
+
+    def toggle_fullscreen(self) -> None:
+        """Toggle between fullscreen and windowed mode."""
+        self._is_fullscreen = not self._is_fullscreen
+        
+        if self._is_fullscreen:
+            # Store current window size before going fullscreen
+            self._windowed_size = (self._screen_width, self._screen_height)
+            # Switch to fullscreen mode
+            self._screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+            self._screen_width, self._screen_height = self._screen.get_size()
+        else:
+            # Restore windowed mode with previous size
+            self._screen_width, self._screen_height = self._windowed_size
+            self._screen = pygame.display.set_mode(
+                (self._screen_width, self._screen_height), 
+                pygame.RESIZABLE
+            )
+        
+        # Update the configuration with new dimensions
+        self._config.update_window_dimensions(self._screen_width, self._screen_height)
+        # Notify scene manager of window resize
+        self._scene_manager.handle_window_resize(self._screen_width, self._screen_height)
 
     def handle_events(self) -> None:
         """Handle all game events."""
@@ -65,6 +92,11 @@ class Game:
                 self._running = False
             elif event.type == pygame.VIDEORESIZE:
                 self.handle_resize(event.w, event.h)
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_F11:
+                    self.toggle_fullscreen()
+                else:
+                    self._scene_manager.handle_event(event)
             else:
                 self._scene_manager.handle_event(event)
 

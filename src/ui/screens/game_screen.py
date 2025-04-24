@@ -32,16 +32,17 @@ class GameScreen(Scene):
     def _setup_ui(self) -> None:
         """Setup the game screen UI components."""
         # Get current window dimensions
-        width, height = self._config.window_config.width, self._config.window_config.height
+        width, height = self._config.get_window_dimensions()
         
         # Calculate dimensions relative to window size
         button_width = min(width // 8, 100)
         button_height = min(height // 16, 40)
+        margin = min(width, height) // 60  # Responsive margin
         
-        # Create menu button
+        # Create menu button - position in top-left with responsive margin
         self._menu_button = Button(
-            x=20,
-            y=20,
+            x=margin,
+            y=margin,
             width=button_width,
             height=button_height,
             text="Menu",
@@ -61,7 +62,20 @@ class GameScreen(Scene):
             self._biome_loader.load()
             self._biome_map = BiomeMap(self._biome_loader.biomes)
             # Update map dimensions with current window size
-            width, height = self._config.window_config.width, self._config.window_config.height
+            width, height = self._config.get_window_dimensions()
+            self._biome_map.update_screen_size(width, height)
+        
+    def on_window_resize(self, width: int, height: int) -> None:
+        """Handle window resize event.
+        
+        Args:
+            width: New window width
+            height: New window height
+        """
+        # Update UI components for new window size
+        self._setup_ui()
+        # Update map dimensions if it exists
+        if self._biome_map:
             self._biome_map.update_screen_size(width, height)
         
     def handle_event(self, event: pygame.event.Event) -> None:
@@ -71,10 +85,6 @@ class GameScreen(Scene):
             event: Pygame event to handle
         """
         if event.type == pygame.VIDEORESIZE:
-            # Update window config
-            self._config.window_config.width = event.w
-            self._config.window_config.height = event.h
-            
             # Update UI components for new window size
             self._setup_ui()
             if self._biome_map:

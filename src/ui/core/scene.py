@@ -52,6 +52,19 @@ class Scene(ABC):
         """
         pass
         
+    def on_window_resize(self, width: int, height: int) -> None:
+        """Handle window resize event.
+        
+        This method should be overridden by scenes that need to update
+        their layout when the window size changes.
+        
+        Args:
+            width: New window width
+            height: New window height
+        """
+        # Default implementation does nothing
+        pass
+        
     def get_next_scene(self) -> Optional[str]:
         """Get the next scene to transition to.
         

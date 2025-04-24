@@ -67,6 +67,21 @@ class SceneManager:
         if data:
             self._current_scene.set_scene_data(data)
             
+    def handle_window_resize(self, width: int, height: int) -> None:
+        """Handle window resize event.
+        
+        This method ensures the current scene layout is updated when
+        the window size changes.
+        
+        Args:
+            width: New window width
+            height: New window height
+        """
+        if self._current_scene:
+            # Force the scene to update its layout based on new dimensions
+            self._current_scene.on_window_resize(width, height)
+            self._needs_redraw = True
+            
     def handle_event(self, event) -> None:
         """Handle pygame events.
         

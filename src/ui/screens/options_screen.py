@@ -111,21 +111,21 @@ class OptionsScreen(Scene):
         Args:
             surface: Surface to draw on
         """
+        width, height = self._config.get_window_dimensions()
+        
         # Draw background
         surface.fill(self._style.get_color("background"))
         
         # Draw title
         title_font = self._style.get_font(FontSize.TITLE)
         title_text = title_font.render("Style Selector", True, self._style.get_color("text"))
-        title_rect = title_text.get_rect(center=(self._config.window_config.width // 2, 
-                                               self._config.window_config.height // 6))
+        title_rect = title_text.get_rect(center=(width // 2, height // 6))
         surface.blit(title_text, title_rect)
         
         # Draw subtitle
         subtitle_font = self._style.get_font(FontSize.BODY)
         subtitle_text = subtitle_font.render("Select a theme:", True, self._style.get_color("text_secondary"))
-        subtitle_rect = subtitle_text.get_rect(center=(self._config.window_config.width // 2, 
-                                                     self._config.window_config.height // 4))
+        subtitle_rect = subtitle_text.get_rect(center=(width // 2, height // 4))
         surface.blit(subtitle_text, subtitle_rect)
         
         # Draw back button
@@ -138,4 +138,14 @@ class OptionsScreen(Scene):
     def reset(self) -> None:
         """Reset the options screen state."""
         super().reset()
-        self._theme_buttons.clear() 
+        self._theme_buttons.clear()
+
+    def on_window_resize(self, width: int, height: int) -> None:
+        """Handle window resize event.
+        
+        Args:
+            width: New window width
+            height: New window height
+        """
+        # Update UI layout for new window size
+        self._setup_ui() 

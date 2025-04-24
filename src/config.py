@@ -13,8 +13,10 @@ class MapConfig:
 @dataclass
 class WindowConfig:
     """Configuration for window settings."""
-    width: int = 1280
-    height: int = 720
+    initial_width: int = 1280
+    initial_height: int = 720
+    current_width: int = initial_width
+    current_height: int = initial_height
 
 @dataclass
 class UIConfig:
@@ -95,12 +97,20 @@ class Config:
         return self._map_config.width, self._map_config.height
 
     def get_window_dimensions(self) -> Tuple[int, int]:
-        """Get the window dimensions.
+        """Get the current window dimensions.
         
         Returns:
-            Tuple[int, int]: The width and height of the window
+            Tuple[int, int]: The current width and height of the window
         """
-        return self._window_config.width, self._window_config.height
+        return self._window_config.current_width, self._window_config.current_height
+
+    def get_initial_window_dimensions(self) -> Tuple[int, int]:
+        """Get the initial window dimensions.
+        
+        Returns:
+            Tuple[int, int]: The initial width and height of the window
+        """
+        return self._window_config.initial_width, self._window_config.initial_height
 
     def get_tile_size(self) -> int:
         """Get the tile size.
@@ -109,6 +119,16 @@ class Config:
             int: The size of each tile in pixels
         """
         return self._map_config.tile_size
+
+    def update_window_dimensions(self, width: int, height: int) -> None:
+        """Update the current window dimensions.
+        
+        Args:
+            width: New window width
+            height: New window height
+        """
+        self._window_config.current_width = width
+        self._window_config.current_height = height
 
     def validate(self) -> bool:
         """Validate the current configuration.
@@ -121,7 +141,7 @@ class Config:
             return False
             
         # Validate window dimensions
-        if self._window_config.width <= 0 or self._window_config.height <= 0:
+        if self._window_config.current_width <= 0 or self._window_config.current_height <= 0:
             return False
             
         # Validate tile size
