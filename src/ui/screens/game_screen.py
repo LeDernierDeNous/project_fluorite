@@ -1,7 +1,7 @@
 import pygame
 from typing import Optional
 from ..core.scene import Scene
-from ..components import Button
+from ..components import Button, LoadingScreen
 from ..style.style_manager import StyleManager, FontSize
 from map.map_manager import MapManager
 from biome.biome_loader import BiomeLoader
@@ -26,8 +26,9 @@ class GameScreen(Scene):
         self._biome_loader = BiomeLoader()
         self._biome_map: Optional[BiomeMap] = None
         self._menu_button: Optional[Button] = None
+        self._loading_screen = LoadingScreen(message="Generating map... Please wait")
+        self._map_initialized = False
         self._setup_ui()
-        self._initialize_map()
         
     def _setup_ui(self) -> None:
         """Setup the game screen UI components."""
@@ -58,12 +59,20 @@ class GameScreen(Scene):
         
     def _initialize_map(self) -> None:
         """Initialize the biome map if not already done."""
-        if not self._biome_map:
+        def map_generation_task():
+            """Task for generating the map in a separate thread."""
             self._biome_loader.load()
             self._biome_map = BiomeMap(self._biome_loader.biomes)
             # Update map dimensions with current window size
             width, height = self._config.get_window_dimensions()
             self._biome_map.update_screen_size(width, height)
+            
+        def on_map_generated():
+            """Callback when map generation is complete."""
+            self._map_initialized = True
+            
+        # Start the map generation with loading screen
+        self._loading_screen.start_task(map_generation_task, on_map_generated)
         
     def on_window_resize(self, width: int, height: int) -> None:
         """Handle window resize event.
@@ -84,6 +93,10 @@ class GameScreen(Scene):
         Args:
             event: Pygame event to handle
         """
+        # If loading screen is visible, don't process other UI events
+        if self._loading_screen.is_visible():
+            return
+            
         if event.type == pygame.VIDEORESIZE:
             # Update UI components for new window size
             self._setup_ui()
@@ -99,8 +112,12 @@ class GameScreen(Scene):
             
     def update(self) -> None:
         """Update the game screen state."""
-        if not self._biome_map:
+        # Initialize map if not already done
+        if not self._map_initialized and not self._loading_screen.is_visible():
             self._initialize_map()
+            
+        # Update loading screen animation
+        self._loading_screen.update()
             
     def draw(self, surface: pygame.Surface) -> None:
         """Draw the game screen.
@@ -111,15 +128,19 @@ class GameScreen(Scene):
         # Draw background
         surface.fill(self._style.get_color("background"))
         
-        # Draw map
-        if self._biome_map:
+        # Draw map if initialized
+        if self._biome_map and not self._loading_screen.is_visible():
             self._biome_map.draw(surface)
             
         # Draw UI components
-        if self._menu_button:
+        if self._menu_button and not self._loading_screen.is_visible():
             self._menu_button.draw(surface)
+            
+        # Draw loading screen if visible
+        self._loading_screen.draw(surface)
             
     def reset(self) -> None:
         """Reset the game screen state."""
         super().reset()
-        self._biome_map = None 
+        self._biome_map = None
+        self._map_initialized = False 
