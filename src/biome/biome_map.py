@@ -1,7 +1,7 @@
 import pygame
 from typing import List, Tuple, Optional, Dict
 from .biome import Biome
-from noise_layer import NoiseLayer
+from noise_layer import HeightNoiseLayer, HumidityNoiseLayer, TemperatureNoiseLayer, MysticalNoiseLayer
 from config import Config
 from ui.components.resource_filter import ResourceFilter
 from ui.components.noise_map_selector import NoiseMapSelector
@@ -44,10 +44,10 @@ class BiomeMap:
         self.active_noise_maps = {noise_type: False for noise_type in self.noise_types}
         
         # Generate all noise maps with different scales for variety
-        self.height_map = NoiseLayer(self.grid_width, self.grid_height, scale=20.0)
-        self.humidity_map = NoiseLayer(self.grid_width, self.grid_height, scale=15.0)
-        self.temperature_map = NoiseLayer(self.grid_width, self.grid_height, scale=25.0)
-        self.mystical_map = NoiseLayer(self.grid_width, self.grid_height, scale=30.0)
+        self.height_map = HeightNoiseLayer(self.grid_width, self.grid_height, scale=20.0)
+        self.humidity_map = HumidityNoiseLayer(self.grid_width, self.grid_height, scale=15.0)
+        self.temperature_map = TemperatureNoiseLayer(self.grid_width, self.grid_height, scale=25.0)
+        self.mystical_map = MysticalNoiseLayer(self.grid_width, self.grid_height, scale=30.0)
         
         # Create a 2D grid to store biome information
         self.grid = [[None for _ in range(self.grid_width)] for _ in range(self.grid_height)]
@@ -125,6 +125,67 @@ class BiomeMap:
         color_value = int(value * 255)
         return (color_value, color_value, color_value)
 
+    def _collect_noise_values(self) -> List[float]:
+        """Collect all values from the currently active noise map."""
+        values = []
+        active_map = None
+        
+        if self.active_noise_maps["Height"]:
+            active_map = self.height_map
+        elif self.active_noise_maps["Humidity"]:
+            active_map = self.humidity_map
+        elif self.active_noise_maps["Temperature"]:
+            active_map = self.temperature_map
+        elif self.active_noise_maps["Mystical"]:
+            active_map = self.mystical_map
+            
+        if active_map:
+            for y in range(self.grid_height):
+                for x in range(self.grid_width):
+                    values.append(active_map.get(x, y))
+                    
+        return values
+
+    def _draw_histogram(self, surface: pygame.Surface, values: List[float]):
+        """Draw a histogram of noise values."""
+        if not values:
+            return
+            
+        # Histogram parameters
+        num_bins = 20
+        padding = 10
+        width = 200
+        height = 100
+        x = self.screen_width - width - padding
+        y = self.screen_height - height - padding
+        
+        # Create bins
+        bins = [0] * num_bins
+        for value in values:
+            bin_index = min(int(value * num_bins), num_bins - 1)
+            bins[bin_index] += 1
+            
+        # Find max bin value for scaling
+        max_bin = max(bins) if bins else 1
+        
+        # Draw background
+        bg_rect = pygame.Rect(x, y, width, height)
+        pygame.draw.rect(surface, (50, 50, 50), bg_rect)
+        pygame.draw.rect(surface, (100, 100, 100), bg_rect, 1)
+        
+        # Draw title
+        title = self.small_font.render("Value Distribution", True, (255, 255, 255))
+        surface.blit(title, (x + padding, y + padding))
+        
+        # Draw histogram bars
+        bar_width = width / num_bins
+        for i, count in enumerate(bins):
+            bar_height = (count / max_bin) * (height - 40)  # Leave space for title
+            bar_x = x + i * bar_width
+            bar_y = y + height - bar_height
+            bar_rect = pygame.Rect(bar_x, bar_y, bar_width - 1, bar_height)
+            pygame.draw.rect(surface, (200, 200, 200), bar_rect)
+
     def draw(self, surface: pygame.Surface):
         # Draw grid background and biomes/noise maps
         for y in range(self.grid_height):
@@ -173,6 +234,11 @@ class BiomeMap:
         
         # Draw noise map selector
         self.noise_selector.draw(surface)
+        
+        # Draw histogram if a noise map is active
+        if any(self.active_noise_maps.values()):
+            values = self._collect_noise_values()
+            self._draw_histogram(surface, values)
 
         # Draw tooltip if hovering over a tile
         if self.hovered_tile:
@@ -264,6 +330,10 @@ class BiomeMap:
         # Handle noise map selector events
         self.noise_selector.handle_event(event)
 
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                return "menu"  # Signal to return to menu
+
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:  # Left click
                 self.dragging = True
@@ -298,4 +368,6 @@ class BiomeMap:
             
             # Adjust offset to zoom towards mouse position
             self.offset_x = mouse_x - grid_x * self.cell_size
-            self.offset_y = mouse_y - grid_y * self.cell_size 
+            self.offset_y = mouse_y - grid_y * self.cell_size
+            
+        return None  # No state change 

@@ -3,11 +3,13 @@
 class Config:
     def __init__(self):
         # Map configuration
-        self.MAP_WIDTH = 100
-        self.MAP_HEIGHT = 50
+        self.MAP_WIDTH = 200
+        self.MAP_HEIGHT = 100
         self.TILE_SIZE = 16
-        self.WINDOW_WIDTH = self.MAP_WIDTH * self.TILE_SIZE
-        self.WINDOW_HEIGHT = self.MAP_HEIGHT * self.TILE_SIZE
+        
+        # Window configuration
+        self.WINDOW_WIDTH = 1280
+        self.WINDOW_HEIGHT = 720
 
         # UI configuration
         self.BACKGROUND_COLOR = (0, 0, 0)
