@@ -2,7 +2,7 @@ import pygame
 from typing import List, Tuple, Optional, Dict, Set
 from dataclasses import dataclass
 from .biome import Biome
-from noise_layer import HeightNoiseLayer, HumidityNoiseLayer, TemperatureNoiseLayer, MysticalNoiseLayer
+from map.noise_layer import HeightNoiseLayer, HumidityNoiseLayer, TemperatureNoiseLayer, MysticalNoiseLayer
 from config import Config
 from ui.components.resource_filter import ResourceFilter
 from ui.components.noise_map_selector import NoiseMapSelector
@@ -46,11 +46,11 @@ class BiomeMap:
         
         # Initialize dimensions
         self._dimensions = MapDimensions(
-            grid_width=self._config.get_map_dimensions()[0],
-            grid_height=self._config.get_map_dimensions()[1],
-            screen_width=self._config.get_window_dimensions()[0],
-            screen_height=self._config.get_window_dimensions()[1],
-            cell_size=self._config.get_tile_size()
+            grid_width=self._config.map_config.width,
+            grid_height=self._config.map_config.height,
+            screen_width=self._config.window_config.width,
+            screen_height=self._config.window_config.height,
+            cell_size=self._config.map_config.tile_size
         )
         
         # Initialize position
@@ -172,7 +172,15 @@ class BiomeMap:
         """
         self._dimensions.screen_width = width
         self._dimensions.screen_height = height
+        
+        # Update UI components
+        self._noise_selector.x = width - 210
+        
+        # Recenter the map
         self._center_map()
+        
+        # Redraw the map
+        self._generate_biome_grid()
 
     def _center_map(self) -> None:
         """Center the map in the current window."""

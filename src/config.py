@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Tuple
+from typing import Tuple, Optional
+from enum import Enum
 from ui.style import ColorPalette
 
 @dataclass
