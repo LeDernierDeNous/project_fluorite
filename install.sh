@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Ultra-Pro Install Script
+# Project Fluorite Install Script
 set -e
 
-echo "🔵 Starting Ultra-Pro Setup..."
+echo "🔵 Starting Project Fluorite Setup..."
 
 # Check for basic tools
 REQUIRED_PKGS=("python3" "python3-venv" "python3-pip" "glxinfo")
@@ -44,5 +44,5 @@ pip install --upgrade pip
 echo "📚 Installing Python libraries..."
 pip install -r requirements.txt
 
-echo "✅ Ultra-Pro Installation Finished!"
+echo "✅ Project Fluorite Installation Finished!"
 echo "👉 You can now start the game with ./start.sh"
