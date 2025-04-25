@@ -117,7 +117,7 @@ class TitleScreen(Scene):
         
         # Draw title
         title_font = self._style.get_font(FontSize.TITLE)
-        title_text = title_font.render("Biome Explorer", True, self._style.get_color("text"))
+        title_text = title_font.render("Project Fluorite", True, self._style.get_color("text"))
         title_rect = title_text.get_rect(center=(width // 2, height // 4))
         surface.blit(title_text, title_rect)
         

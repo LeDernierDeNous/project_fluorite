@@ -31,7 +31,7 @@ class Game:
         # Use initial window dimensions for startup
         self._screen_width, self._screen_height = self._config.get_initial_window_dimensions()
         self._screen = pygame.display.set_mode((self._screen_width, self._screen_height), pygame.RESIZABLE)
-        pygame.display.set_caption("Biome Explorer")
+        pygame.display.set_caption("Project Fluorite")
         self._clock = pygame.time.Clock()
         self._running = True
         self._is_fullscreen = False

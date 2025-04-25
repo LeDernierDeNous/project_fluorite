@@ -36,7 +36,7 @@ def validate_config(config: Config) -> bool:
 
 def parse_arguments():
     """Parse command line arguments."""
-    parser = argparse.ArgumentParser(description="Biome Explorer Game")
+    parser = argparse.ArgumentParser(description="Project Fluorite Game")
     parser.add_argument(
         "--fullscreen", 
         action="store_true", 

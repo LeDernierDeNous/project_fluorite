@@ -1,7 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 
-echo Starting Ultra-Pro Setup...
+echo Starting Project Fluorite Setup...
 
 :: Check if Python is installed
 python --version >nul 2>&1

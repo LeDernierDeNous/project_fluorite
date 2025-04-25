@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Ultra-Pro Start Script v3 (LD_PRELOAD + Anaconda clean fix)
+# Project Fluorite Start Script v3 (LD_PRELOAD + Anaconda clean fix)
 set -e
 
 echo "🎮 Starting the Game..."
