@@ -448,6 +448,12 @@ class BiomeMap:
         Args:
             event: The pygame event containing zoom information
         """
+        # Get the mouse position
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        
+        # Calculate the current cell size
+        current_cell_size = self._dimensions.cell_size
+        
         if event.y > 0:  # Zoom in
             self._dimensions.cell_size = min(
                 self._dimensions.cell_size * 1.1,
@@ -459,8 +465,13 @@ class BiomeMap:
                 self._config.get_tile_size() / 4  # Minimum zoom level
             )
         
-        # Recenter the map after zooming
-        self._center_map()
+        # Calculate the new offset based on the mouse position
+        new_cell_size = self._dimensions.cell_size
+        offset_x_change = (mouse_x - self._position.offset_x) * (new_cell_size / current_cell_size - 1)
+        offset_y_change = (mouse_y - self._position.offset_y) * (new_cell_size / current_cell_size - 1)
+        
+        self._position.offset_x -= offset_x_change
+        self._position.offset_y -= offset_y_change
 
     def handle_event(self, event: pygame.event.Event) -> Optional[str]:
         """Handle pygame events.
